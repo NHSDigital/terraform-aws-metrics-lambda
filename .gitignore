@@ -1,0 +1,77 @@
+# IDE and various other developer tools
+.idea
+.ipynb_checkpoints
+*.swp
+
+# Misc
+!.gitkeep
+*.orig
+.github-artifacts
+scanner
+.scannerwork
+docker-compose.override.yml
+.vscode/*.log
+coverage.xml
+.coverage.*
+docker/digests.yml
+
+# Packaging
+build/
+dist/
+reports/
+
+#Ansible
+*.retry
+.ansible/
+
+# Python
+.env
+.venv
+venv
+*.pyc
+__pycache__
+.mypy_cache
+**/.pytest_cache/
+.python-version
+.coverage
+.coverage-out/
+requirements.txt
+**/requirements.txt
+.lock-hash
+
+# Node
+node_modules/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.plan
+terraform.log
+.tfplan.out
+.tfplan.exit
+terraform/stacks/local/.terraform.lock.hcl
+terraform/**/external-vars.json
+terraform.d/
+
+# certs/keys/pems
+*.crt
+*.csr
+*.key
+*.pem
+*.pfx
+*.srl*
+*.csr.cfg
+*id_rsa*
+
+# mailbox passwords etc.
+*secrets.json
+
+# Big binaries
+*.bz2
+*.gz
+*.jar
+*.tar.gz
+*.tgz
+*.zip

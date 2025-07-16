@@ -1,0 +1,37 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    open-pull-requests-limit: 2
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "github actions "
+      include: scope
+
+  - package-ecosystem: "pip"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+      time: "08:00"
+
+    groups:
+      dev-dependencies:
+        patterns:
+          - "ansible-lint"
+          - "black"
+          - "boto3"
+          - "coverage"
+          - "black"
+          - "ipython"
+          - "mypy"
+          - "petname"
+          - "pytest"
+          - "pytest-*"
+          - "ruff"
+          - "types-*"

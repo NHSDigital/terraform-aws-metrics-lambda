@@ -1,0 +1,70 @@
+- name: create digests
+  set_fact:
+    digests: {}
+
+- name: check docker_build_label
+  fail:
+    msg: you must specify an docker_build_label
+  when: not docker_build_label
+
+- name: get current ecr repos
+  command: "{{ aws_cmd }} ecr describe-repositories --query 'repositories[].repositoryName'"
+  register: current_repos
+  changed_when: false
+
+- name: set variables
+  set_fact:
+    ensure_images: "{{ docker_images.ensure | default([]) }}"
+    build_images: "{{ docker_images.build | default([]) }}"
+    pull_push_images: "{{ docker_images.pull_push | default([]) }}"
+
+- name: set variables
+  set_fact:
+    current_repos: "{{ current_repos.stdout | from_json }}"
+    required_repos: "{{ (build_images + pull_push_images) | json_query('[].name') | unique | sort }}"
+
+- name: set variables
+  set_fact:
+    new_repos: "{{ required_repos | difference(current_repos) }}"
+
+
+- name: ensure images
+  include_tasks: ensure-image.yml
+  loop: "{{ ensure_images }}"
+  loop_control:
+    loop_var: "image"
+    label: "{{ image }}"
+
+
+- name: create new repos
+  command: "{{ aws_cmd }} ecr create-repository --repository-name {{ item }} --image-scanning-configuration scanOnPush=true"
+  loop: "{{ new_repos }}"
+  when: new_repos
+  changed_when: true
+
+- name: build and push ecr containers
+  include_tasks: build-image.yml
+  loop: "{{ build_images }}"
+  loop_control:
+    loop_var: "image"
+    label: "{{ image.name }}"
+
+- name: pull and push ecr images
+  include_tasks: pull-push-image.yml
+  loop: "{{ pull_push_images }}"
+  loop_control:
+    loop_var: "image"
+    label: "{{ image.name }}"
+
+- name: debug digests
+  debug:
+    var: digests
+
+- name: write image digests
+  copy:
+    dest: "{{ base_dir }}/docker/digests.yml"
+    content: "{{ output | to_nice_yaml }}"
+    mode: '644'
+  vars:
+    output:
+      digests: "{{ digests }}"

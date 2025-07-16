@@ -1,0 +1,27 @@
+name: odin-merge
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  ACCOUNT_ID: ${{ secrets.DEV_ACCOUNT_ID }}
+
+jobs:
+
+  on-merge:
+    uses: NHSDigital/odin-actions/.github/workflows/on-merge-pipeline.yml@v1
+    with:
+      repo-name: odin-template
+      terraform-approvals: false
+
+  create-release:
+    needs:
+      - on-merge
+      # - tests
+    uses: NHSDigital/odin-actions/.github/workflows/on-merge-create-release.yml@v1
+    with:
+      repo-name: odin-template
+      application: "replace-me"
+#      stack: "main"
+      on-merge-execution-id: "${{ needs.on-merge.outputs.on-merge-execution-id }}"

@@ -1,0 +1,4 @@
+.gitallowed:[0-9]+:.*
+.gitdisallowed:[0-9]+:.*
+.git/(?!COMMIT_EDITMSG|OTHERFILE)\w+:.*
+terraform/modules/account/s3.tf:[0-9]+:\s+"arn:aws:iam::652711504416:root"

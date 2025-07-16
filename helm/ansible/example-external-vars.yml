@@ -1,0 +1,112 @@
+- name: external-vars
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: setup facts
+      set_fact:
+        account: "{{ lookup('env', 'account', default='local') }}"
+        aws_cmd: "aws --region=eu-west-2"
+        cluster: "{{ lookup('env', 'cluster') }}"
+
+    - name: not for local
+      when: account == 'local'
+      fail:
+        msg: not for local use
+
+    - name: get cluster info
+      command: "{{ aws_cmd }} eks describe-cluster --name={{ cluster }}"
+      register: eks_cluster_info
+      failed_when: eks_cluster_info.stdout == ''
+      changed_when: false
+
+    - name: parse cluster info
+      set_fact:
+        cluster:
+          arn: "{{ cluster_info.arn }}"
+          role_arn: "{{ cluster_info.roleArn }}"
+          account_id: "{{ (cluster_info.roleArn | regex_search('arn:aws:iam::([0-9]+):role/.*', '\\1'))[0] }}"
+          vpc_id: "{{ cluster_info.resourcesVpcConfig.vpcId }}"
+          sg_id: "{{ cluster_info.resourcesVpcConfig.clusterSecurityGroupId }}"
+      vars:
+        cluster_info: "{{ (eks_cluster_info.stdout | from_json)['cluster'] }}"
+
+    - name: display cluster info
+      debug:
+        var: cluster
+
+    - name: get example internal loadbalancer arn
+      command: "{{ aws_cmd }} elbv2 describe-load-balancers --query 'LoadBalancers[?LoadBalancerName==`example-internal-alb`].LoadBalancerArn' --output text"
+      register: internal_alb
+      failed_when: internal_alb.stdout == ''
+      changed_when: false
+
+    - name: get target group arns
+      command: "{{ aws_cmd }} elbv2 describe-target-groups --load-balancer-arn={{ internal_alb.stdout }} --query 'TargetGroups[].TargetGroupArn'"
+      register: get_target_group_arns
+      changed_when: false
+
+    - name: get target group tags
+      command: "{{ aws_cmd }} elbv2 describe-tags --resource-arns {{ target_group_arns | join(' ') }} --query 'TagDescriptions'"
+      register: get_target_group_tags
+      failed_when: get_target_group_tags.stdout == ''
+      changed_when: false
+      vars:
+        target_group_arns: "{{ get_target_group_arns.stdout | from_json }}"
+
+    - name: parse target groups
+      set_fact:
+        raw_target_groups: "{{ raw_target_groups | default({}) | combine({item.ResourceArn: {'arn': item.ResourceArn, 'tags': (item.Tags | items2dict('Key', 'Value'))}}) }}"
+      loop: "{{ get_target_group_tags.stdout | from_json }}"
+      loop_control:
+        loop_var: item
+        label: "{{ item.ResourceArn }}"
+
+    - name: parse target groups
+      set_fact:
+        target_groups: "{{ target_groups | default({}) | combine({(item.value.tags['TargetGroupName'] | regex_replace('-', '_')): item.value.arn}) }}"
+      loop: "{{ raw_target_groups | dict2items }}"
+      loop_control:
+        loop_var: item
+        label: "{{ item.value.tags['TargetGroupName'] | regex_replace('-', '_') }}: {{ item.value.arn }}"
+
+    - name: get example service sg
+      command: "{{ aws_cmd }} ec2 get-security-groups-for-vpc --vpc-id={{ cluster.vpc_id }} --filters Name=group-name,Values=example-service --query 'SecurityGroupForVpcs[?GroupName==`example-service`].GroupId' --output text"
+      register: example_service_sg
+      failed_when: example_service_sg.stdout == ''
+      changed_when: false
+
+    - name: create external_vars
+      set_fact:
+        external_vars:
+          secretsRoleARN: "{{ base_role }}/eks-example-secrets"
+          exampleTargetGroupARN: "{{ target_groups.example }}"
+          eksClusterSG: "{{ cluster.sg_id }}"
+          exampleServiceSG: "{{ example_service_sg.stdout }}"
+
+          example-distributed:
+            image:
+              repository: "{{ ecr_registry }}/example"
+            serviceAccount:
+              annotations:
+                eks.amazonaws.com/role-arn: "{{ base_role }}/example"
+            nginx:
+              image:
+                registry: "{{ ecr_registry }}"
+            rollout_operator:
+              image:
+                repository: "{{ ecr_registry }}/grafana/rollout-operator"
+      vars:
+        ecr_registry: "{{ cluster.account_id }}.dkr.ecr.eu-west-2.amazonaws.com"
+        base_role: "{{ cluster.role_arn | regex_search('arn:aws:iam::([0-9]+):role') }}"
+
+    - name: display external_vars
+      debug:
+        var: external_vars
+
+    - name: write external vars
+      copy:
+        dest: "{{ playbook_dir }}/../<replace-me>/{{ cluster }}-external-vars.yaml"
+        content: "{{ external_vars | to_nice_yaml }}"
+        mode: '644'

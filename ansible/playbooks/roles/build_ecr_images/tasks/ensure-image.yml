@@ -1,0 +1,35 @@
+- name: "set image facts {{ image }}"
+  set_fact:
+    image_repo: "{{ (image | split(':'))[0] }}"
+    image_tag: "{{ (image | split(':'))[1] }}"
+
+- name: "set image facts {{ image }}"
+  set_fact:
+    pull_image: "{{ ecr_registry }}/{{ image }}"
+    repository: "{{ ecr_registry }}/{{ image_repo }}"
+
+- name: "pull image: {{ pull_image }}"
+  command: "docker pull {{ pull_image }}"
+  changed_when: false
+
+- name: "get digest for {{ image }}"
+  command: >
+    {{ aws_cmd }} ecr describe-images
+    --repository-name {{ image_repo }}
+    --image-ids imageTag={{ image_tag }}
+    --query 'imageDetails[0].imageDigest' --output text
+  register: image_digest
+  failed_when: image_digest.rc !=0 or image_digest.stdout == ''
+  ignore_errors: "{{ not docker_push }}"
+  changed_when: false
+
+- name: create digest entry
+  set_fact:
+    digest_info:
+      repository: "{{ image_repo }}"
+      tag: "{{ image_tag }}"
+      digest: "{{ image_digest.stdout }}"
+
+- name: record image_digest for {{ repository }}:{{ image_tag }}
+  set_fact:
+    digests: "{{  digests | combine({image_repo: digest_info}) }}"

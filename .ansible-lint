@@ -1,0 +1,8 @@
+parseable: true
+use_default_rules: true
+skip_list:
+  - name[casing]
+  - fqcn[action-core]
+  - yaml[line-length]
+  - var-naming[no-role-prefix]
+  - name[template]

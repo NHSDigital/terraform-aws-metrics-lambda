@@ -1,0 +1,108 @@
+- name: debug
+  debug:
+    var: build_cmd
+
+- name: "pull {{ repository }}:{{ cache_tag }}"
+  command: docker pull {{ repository }}:{{ cache_tag }}
+  register: docker_pull
+  failed_when: docker_pull.rc not in [0, 1]
+  changed_when: docker_pull.rc == 0
+
+- name: "get image_id for pulled {{ repository }}:{{ cache_tag }}"
+  command: docker images --filter reference={{ repository }}:{{ cache_tag }} -q
+  register: pulled_image_id_cmd
+  changed_when: false
+
+- name: "build docker image: {{ image.name }}"
+  shell: |
+    DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build --pull --build-arg BUILDKIT_INLINE_CACHE=1 \
+    -t {{ repository }}:{{ build_tag }} {{ cache_from }} {{ target }} {{ build_cmd }}
+  args:
+    chdir: "{{ base_dir }}"
+  register: build
+  changed_when: true
+
+- name: debug
+  debug:
+    var: build
+
+- name: "get image_id for {{ repository }}:{{ build_tag }}"
+  command: docker images --filter reference={{ repository }}:{{ build_tag }} -q
+  register: built_image_id_cmd
+  changed_when: false
+
+- name: set image id facts
+  set_fact:
+    image_ids:
+      pulled: "{{ pulled_image_id_cmd.stdout }}"
+      built: "{{ built_image_id_cmd.stdout }}"
+    image_ids_match: "{{ pulled_image_id_cmd.stdout != '' and pulled_image_id_cmd.stdout == built_image_id_cmd.stdout }}"
+
+- name: debug image ids
+  debug:
+    var: image_ids
+
+- name: "docker image inspect {{ image_ids['pulled'] }}"
+  shell:
+    cmd: |
+      set -o pipefail
+      if [[ -z "{{ image_ids['pulled'] }}" ]]; then
+        echo "image-not-pulled-$(dd if=/dev/urandom bs=24 count=1 2>/dev/null | xxd -p)"
+      else
+        docker image inspect {{ image_ids['pulled'] }} | jq '.[] | {Config: .Config, RootFS: .RootFS}'
+      fi
+    executable: /bin/bash
+  register: pulled_image_manifest
+  changed_when: false
+  ignore_errors: true
+
+- name: "docker image inspect {{ image_ids['built'] }}"
+  shell:
+    cmd: |
+      set -o pipefail
+      docker image inspect {{ image_ids['built'] }} | jq '.[] | {Config: .Config, RootFS: .RootFS}'
+    executable: /bin/bash
+  register: built_image_manifest
+  changed_when: false
+
+- name: set image manifests
+  set_fact:
+    manifests:
+      pulled: "{{ pulled_image_manifest.stdout }}"
+      built: "{{ built_image_manifest.stdout }}"
+    manifest_sha256:
+      pulled: "{{ pulled_image_manifest.stdout | hash('sha256') }}"
+      built: "{{ built_image_manifest.stdout | hash('sha256') }}"
+    manifests_match: "{{ (pulled_image_manifest.stdout | hash('sha256')) == (built_image_manifest.stdout | hash('sha256')) }}"
+    details:
+      build_tag: "{{ build_tag }}"
+      cache_tag: "{{ cache_tag }}"
+      push_builder: "{{ push_builder }}"
+      docker_push: "{{ docker_push }}"
+      manifests_match: "{{ (pulled_image_manifest.stdout | hash('sha256')) == (built_image_manifest.stdout | hash('sha256')) }}"
+      manifest_sha256:
+        pulled: "{{ pulled_image_manifest.stdout | hash('sha256') }}"
+        built: "{{ built_image_manifest.stdout | hash('sha256') }}"
+
+- name: debug details
+  debug:
+    var: details
+
+- name: re-tag pulled image
+  shell: |
+    docker tag {{ repository }}:{{ cache_tag }} {{ repository }}:{{ build_tag }}
+  when: build_tag != cache_tag and manifests_match
+  changed_when: true
+
+- name: "push ecr image {{ repository }}:{{ build_tag }}"
+  shell: |
+    docker push {{ repository }}:{{ build_tag }}
+  when: docker_push and (build_tag != cache_tag or push_builder)
+  changed_when: true
+
+- name: "push ecr image {{ repository }}:{{ cache_tag }}"
+  shell: |
+    docker tag {{ repository }}:{{ build_tag }} {{ repository }}:{{ cache_tag }}
+    docker push {{ repository }}:{{ cache_tag }}
+  when: docker_push and push_cache and build_tag != cache_tag and not manifests_match
+  changed_when: true

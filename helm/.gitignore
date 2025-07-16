@@ -1,0 +1,7 @@
+*/kustomization.yaml
+*/external-vars.y*ml
+*/*-external-vars.y*ml
+!*/.fake-external-vars.y*ml
+!ansible/*
+*/charts/
+*/.rendered.*

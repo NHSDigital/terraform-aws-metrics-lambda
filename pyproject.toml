@@ -1,0 +1,158 @@
+[tool.poetry]
+name = "odin-<replace-me>"
+version = "0.0.0"
+description = "odin <replace-me>"
+authors = ["spine core"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/NHSDigital/odin-<replace-me>"
+package-mode = false
+#packages = [
+#    { include = "shared", from = "./src" },
+#]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+# ci / testing dependencies
+
+mypy = "^1.16.0"
+coverage = "^7.9.1"
+pytest = "^8.4.0"
+pytest-asyncio = "^1.0.0"
+ruff = "^0.11.13"
+petname = "^2.6"
+black = "^25.1.0"
+ansible = "^11.7.0"
+boto3 = "^1.38.36"
+ansible-lint = "^25.5.0"
+python-dotenv = "^1.1.1"
+httpx = "^0.28.1"
+pytest-httpx = "^0.35.0"
+pytest-httpserver = "^1.1.2"
+
+[tool.poetry.group.local.dependencies]
+ipython = "^9.3.0"
+
+[tool.ruff]
+lint.select = [
+    # See https://beta.ruff.rs/docs/rules/ for a full list
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "Q", # flake8-quotes
+    "YTT", # flake8-2020
+    "RSE", # flake8-raise
+    "T10", # flake8-debugger
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "EXE", # flake8-executable
+    "A", # flake8-builtins
+    "UP",  # pyupgrade
+    "PT", # flake8-pytest-style
+    "PERF", # Perflint #
+    "RUF", # Ruff-specific rules
+    "SIM", # flake8-simplify
+]
+src = ["."]
+lint.ignore = [
+    "SIM112"  # casing on environment variables
+]
+exclude = [
+    ".git",
+    ".venv",
+]
+lint.unfixable = ["SIM112"]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+show_error_codes = true
+check_untyped_defs = true
+exclude = [
+    "build",
+    "dist",
+    "scripts",
+    "terraform",
+    "module"
+]
+
+[[tool.mypy.overrides]]
+module = "moto.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "requests.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+python_classes = "NoTestClasses"
+python_files = "*_test.py test_*.py *_tests.py"
+norecursedirs = ".git .venv .eggs build dist .tox"
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    ".venv/*",
+    ".tox/*",
+    "tests/*",
+    "terraform/dist/*",
+]
+source = [
+    "."
+]
+
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    "pragma: no cover",
+    "from .*",
+    "import .*"
+]
+omit = [
+    "tests/*",
+]
+sort = "-cover"
+ignore_errors = true
+precision = 2
+fail_under = 65
+show_missing = true
+
+[tool.coverage.xml]
+output = "reports/coverage.xml"
+
+
+[tool.poetry-dynamic-versioning]
+enable = true
+metadata = false
+vcs = "git"
+style = "pep440"
+format-jinja = """
+    {%- if distance == 0 -%}
+        {{ serialize_pep440(base, stage, revision) }}
+    {%- else -%}
+        {{ serialize_pep440(bump_version(base), "pre", revision=timestamp) }}
+    {%- endif -%}
+"""
+
+
+[build-system]
+requires = ["poetry>=1.6.1", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
