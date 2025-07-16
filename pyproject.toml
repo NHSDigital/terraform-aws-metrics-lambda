@@ -17,23 +17,23 @@ python = "^3.11"
 [tool.poetry.group.dev.dependencies]
 # ci / testing dependencies
 
-mypy = "^1.16.0"
-coverage = "^7.9.1"
-pytest = "^8.4.0"
-pytest-asyncio = "^1.0.0"
-ruff = "^0.11.13"
+mypy = "^1.17.0"
+coverage = "^7.9.2"
+pytest = "^8.4.1"
+pytest-asyncio = "^1.1.0"
+ruff = "^0.12.3"
 petname = "^2.6"
 black = "^25.1.0"
 ansible = "^11.7.0"
-boto3 = "^1.38.36"
-ansible-lint = "^25.5.0"
+boto3 = "^1.39.6"
+ansible-lint = "^25.6.1"
 python-dotenv = "^1.1.1"
 httpx = "^0.28.1"
 pytest-httpx = "^0.35.0"
 pytest-httpserver = "^1.1.2"
 
 [tool.poetry.group.local.dependencies]
-ipython = "^9.3.0"
+ipython = "^9.4.0"
 
 [tool.ruff]
 lint.select = [
