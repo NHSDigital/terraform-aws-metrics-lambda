@@ -12,6 +12,10 @@ YACE and this lambda can be configured to use the [Resource Groups Tagging API](
 > **_NOTE:_**
 > Cloudwatch APIs are rate limited, do not deploy multiple metrics lambdas running on the same schedule, the implementation supports environment variables to limit the concurrency for the different APIs e.g. `TAGGING_API_CONCURRENCY` (by account/region)
 
+> **_NOTE:_**
+> In the first iteration of this function we're passing the scrape config as a lambda environment variable, there is a total size limit of 4KB for lambda environment variables, if you need more config, the function will need to be updated to support config from s3 or another source.
+
+
 ## variables
 
 
