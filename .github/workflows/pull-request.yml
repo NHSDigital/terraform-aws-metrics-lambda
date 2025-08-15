@@ -55,7 +55,7 @@ jobs:
         with:
           pytest-coverage-path: ./reports/pytest-coverage.txt
           pytest-xml-coverage-path: ./reports/coverage.xml
-          junitxml-path: ./reports/junit/*.xml
+          junitxml-path: ./reports/junit/results.xml
 
       - name: convert sonar reports
         if: ${{ hashFiles('./reports/junit/*.xml') || hashFiles('./reports/coverage.xml') }}
