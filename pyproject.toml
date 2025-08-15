@@ -27,7 +27,7 @@ python-dotenv = "^1.1.1"
 httpx = "^0.28.1"
 pytest-httpx = "^0.35.0"
 pytest-httpserver = "^1.1.2"
-ruff = "^0.11.13"
+ruff = "^0.12.9"
 petname = "^2.6"
 black = "^25.1.0"
 boto3 = "^1.38.36"
@@ -73,7 +73,7 @@ exclude = [
 ]
 lint.unfixable = ["SIM112"]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint.per-file-ignores]
 

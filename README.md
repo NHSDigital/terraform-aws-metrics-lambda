@@ -1,7 +1,8 @@
 # Terraform AWS Metrics lambda
 
-This is a lambda python implementation heavily based on [YACE](https://github.com/prometheus-community/yet-another-cloudwatch-exporter)
-But in python and delivering the output in json to an SQS queue.
+This is a lambda python implementation heavily based on [YACE](https://github.com/prometheus-community/yet-another-cloudwatch-exporter).
+
+But written in much slower less efficient Python so that it can be packaged as a terraform module and and delivering the output in json to an SQS queue.
 
 YACE and this lambda can be configured to use the [Resource Groups Tagging API](https://docs.aws.amazon.com/resourcegroupstagging/latest/APIReference/overview.html) to discover AWS resources, allowing for scraping metrics relating to dynamic or ephemeral resources.
 

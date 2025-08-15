@@ -3,7 +3,7 @@ import re
 from collections.abc import Generator
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TypeAlias, cast
+from typing import cast
 
 
 @dataclass
@@ -133,7 +133,7 @@ class CloudwatchMetricResult:
     messages: list[dict[str, str]] | None = None
 
 
-MetricTaskSignature: TypeAlias = tuple[
+type MetricTaskSignature = tuple[
     str, str, tuple[tuple[str, str], ...], tuple[tuple[str, str], ...]
 ]
 

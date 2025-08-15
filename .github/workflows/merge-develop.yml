@@ -6,11 +6,36 @@ on:
 
 jobs:
 
-
   scan:
-    uses: NHSDigital/odin-actions/.github/workflows/sonar-scan.yml@v1
-    secrets:
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: checkout the calling repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: build-common
+        uses: ./.github/actions/build-common
+
+      - name: run tests
+        shell: bash
+        run: |
+          make coverage-ci
+
+      - name: convert sonar reports
+        if: ${{ hashFiles('./reports/junit/*.xml') || hashFiles('./reports/coverage.xml') }}
+        uses: ./.github/actions/sonar-reports
+
+      - name: prepare sonar properties
+        if: ${{ hashFiles('./sonar-project.properties') }}
+        uses: ./.github/actions/sonar-properties
+
+      - name: sonarqube scan
+        uses: SonarSource/sonarqube-scan-action@v5.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 
   tag-version:

@@ -1,0 +1,10 @@
+name: "sonar reports"
+description: "convert junit and coverage reports to sonar xunit format"
+
+runs:
+  using: "composite"
+  steps:
+    - name: convert junit and coverage output to sonar formats
+      shell: bash
+      run: |
+        python3 "${{ github.action_path }}/sonar_tests.py" "${{ github.workspace }}"

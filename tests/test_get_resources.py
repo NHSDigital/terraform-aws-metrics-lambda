@@ -49,7 +49,8 @@ async def test_s3_get_resource(test_bucket, search_tags: dict, expected: int):
         assert len(resources) == expected
 
 
-async def test_alb_get_resource(temp_alb, expected: int = 1):
+async def test_alb_get_resource(temp_alb):
+    expected = 1
     _alb_arn, _alb_name = temp_alb
     conf = {
         "discovery": {
