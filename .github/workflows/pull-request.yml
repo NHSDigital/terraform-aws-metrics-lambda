@@ -5,45 +5,48 @@ on:
     branches:
       - develop
 
-env:
-  ACCOUNT_ID: "${{ secrets.DEV_ACCOUNT_ID }}"
-
 jobs:
 
   lint:
     uses: NHSDigital/odin-actions/.github/workflows/standard-linting.yml@v1
 
-  validate-build:
+  test:
+    uses: NHSDigital/odin-actions/.github/workflows/test-and-sonar-scan.yml@v1
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
 
-    runs-on:
-      - codebuild-runner-odin-template-${{ github.run_id }}-${{ github.run_attempt }}
-      - buildspec-override:true
-    steps:
-
-      - name: checkout the calling repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: common build setup
-        uses: NHSDigital/odin-actions/.github/actions/build-common@v1
-
-      - name: build artifacts
-        id: build-artifacts
-        uses: NHSDigital/odin-actions/.github/actions/build-artifacts@v1
-        with:
-          application: "replace-me"
-
-#      - name: terraform-plan
-#        uses: NHSDigital/odin-actions/.github/actions/terraform-stack-plan-no-lock-codepipeline@v1
+#  validate-build:
+#
+#    runs-on:
+#      - codebuild-runner-terraform-aws-metrics-lambda-${{ github.run_id }}-${{ github.run_attempt }}
+#      - buildspec-override:true
+#    steps:
+#
+#      - name: checkout the calling repo
+#        uses: actions/checkout@v4
 #        with:
-#          application: "replace-me"
-#          version: ${{ steps.build-artifacts.outputs.version }}
+#          fetch-depth: 0
+#
+#      - name: common build setup
+#        uses: NHSDigital/odin-actions/.github/actions/build-common@v1
+#
+#      - name: build artifacts
+#        id: build-artifacts
+#        uses: NHSDigital/odin-actions/.github/actions/build-artifacts@v1
+#        with:
+#          application: "metriczzz"
+#
+##      - name: terraform-plan
+##        uses: NHSDigital/odin-actions/.github/actions/terraform-stack-plan-no-lock-codepipeline@v1
+##        with:
+##          application: "metriczzz"
+##          version: ${{ steps.build-artifacts.outputs.version }}
 
   auto-merge-dependabot:
     needs:
       - lint
-      - validate-build
+      - test
+#      - validate-build
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     uses: NHSDigital/odin-actions/.github/workflows/dependabot-automation.yml@v1
     with:

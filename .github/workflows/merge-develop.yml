@@ -4,24 +4,57 @@ on:
     branches:
       - develop
 
-env:
-  ACCOUNT_ID: ${{ secrets.DEV_ACCOUNT_ID }}
-
 jobs:
 
-  on-merge:
-    uses: NHSDigital/odin-actions/.github/workflows/on-merge-pipeline.yml@v1
-    with:
-      repo-name: odin-template
-      terraform-approvals: false
 
-  create-release:
-    needs:
-      - on-merge
-      # - tests
-    uses: NHSDigital/odin-actions/.github/workflows/on-merge-create-release.yml@v1
-    with:
-      repo-name: odin-template
-      application: "replace-me"
-#      stack: "main"
-      on-merge-execution-id: "${{ needs.on-merge.outputs.on-merge-execution-id }}"
+  scan:
+    uses: NHSDigital/odin-actions/.github/workflows/sonar-scan.yml@v1
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+
+  tag-version:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+    steps:
+      - name: checkout the calling repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: check for specific poetry version
+        id: poetry-version
+        shell: bash
+        run: |
+          version="latest"
+          if [ -f .tool-versions ] && grep -Eq "^poetry .*" .tool-versions; then
+            version="$(grep -E "^poetry .*" .tool-versions | cut -d ' ' -f2)"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ steps.poetry-version.outputs.version }}
+          plugins: poetry-dynamic-versioning
+
+      - name: increment patch version and replace major version
+        shell: bash
+        id: get-version
+        run: |
+          # Create semantic version tag: vN.N.N
+          SEMANTIC_VERSION="v$(poetry version patch -s)"
+          git tag "${SEMANTIC_VERSION}"
+          git push origin "${SEMANTIC_VERSION}"
+
+          # Delete existing major version tag if it already exists: vN
+          MAJOR_VERSION="$(echo ${SEMANTIC_VERSION} | cut -d. -f1)"
+          if [[ $(git tag --list ${MAJOR_VERSION}) != "" ]]; then
+            git tag -d ${MAJOR_VERSION}
+            git push origin :refs/tags/${MAJOR_VERSION}
+          fi
+
+          # Create major version tag
+          git tag "${MAJOR_VERSION}"
+          git push origin "${MAJOR_VERSION}"

@@ -1,8 +1,0 @@
-docker_images:
-  build: []
-#  - { name: "odin/example", build: "example" }
-  ensure: []  # ensure will just do a pull on our dev repo ( populate the ecr pullthrough cache (if there's a pullthrough rule )
-#    - library/memcached:1.2.3
-#    - library/mysql:1.2.3
-  pull_push: []
-#  - { name: "some/custom", repository: "ghcr.io/some/custom", tag: "1.2.3"}

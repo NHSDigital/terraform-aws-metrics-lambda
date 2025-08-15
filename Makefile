@@ -43,6 +43,7 @@ local-terraform:
 clean:
 	rm -rf ./build
 	rm -rf ./dist
+	rm -rf ./reports
 	find . -type d -name '.mypy_cache' | xargs -r rm -r || true
 
 build:
@@ -54,15 +55,21 @@ dist: clean build
 	mv build dist
 
 pytest: .env
-	poetry run pytest tests/unit
+	poetry run pytest
 
 test: pytest
 
-integration-test:
-	poetry run pytest tests/integration
+reports/:
+	mkdir -p reports
+
+coverage: .env
+	poetry run pytest --cov --color=yes -v --cov-report=term-missing:skip-covered
+
+coverage-ci: clean .env reports/
+	poetry run pytest --cov --color=yes -v --junit-xml=./reports/junit/results.xml --cov-report=term-missing:skip-covered --cov-report xml | tee reports/pytest-coverage.txt
 
 tf-lint:
-	tflint --chdir=terraform/stacks/main --config "$(pwd)/.tflint.hcl"
+	tflint --config "$(pwd)/.tflint.hcl"
 
 tf-format-check:
 	terraform fmt -check -recursive
@@ -71,7 +78,7 @@ tf-format:
 	terraform fmt --recursive
 
 tf-trivy:
-	trivy conf --exit-code 1 terraform --skip-dirs "**/.terraform" --skip-dirs "stacks/local"
+	trivy conf --exit-code 1 ./ --skip-dirs "**/.terraform" --skip-dirs ".venv"
 
 mypy:
 	poetry run mypy .
@@ -105,25 +112,6 @@ ansible-lint:
 lint: ruff mypy shellcheck
 
 lint-ci: black-check ruff-ci mypy tf-lint tf-trivy ansible-lint
-
-coverage-cleanup:
-	rm -f .coverage* || true
-
-coverage-ci-test: certs
-	poetry run coverage run -m pytest tests/integration --color=yes -v --junit-xml=./reports/junit/tests-integration.xml
-	poetry run coverage run -a -m pytest tests/mocked --color=yes -v --junit-xml=./reports/junit/tests-mocked.xml
-
-coverage-report:
-	@poetry run coverage report; \
-	poetry run coverage xml;
-
-coverage: coverage-cleanup coverage-test coverage-report
-
-coverage-test:
-	poetry run coverage run -m pytest tests/integration
-	poetry run coverage run -a -m pytest tests/mocked
-
-coverage-ci: coverage-cleanup coverage-ci-test coverage-report
 
 check-secrets:
 	scripts/check-secrets.sh

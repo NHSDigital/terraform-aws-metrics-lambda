@@ -1,4 +1,4 @@
-misconfiguration:
-  terraform:
-    vars:
-      - terraform/vars/trivy.tfvars
+#misconfiguration:
+#  terraform:
+#    vars:
+#      - terraform/vars/trivy.tfvars

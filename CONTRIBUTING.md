@@ -11,7 +11,7 @@ tools used:
 ### install project tools
 use asdf to ensure required tools are installed ... configured tools are in  [.tool-versions](.tool-versions)
 ```bash
-cd ~/work/odin-<replace-me>
+cd ~/work/terraform-aws-metrics-lambda
 for plugin in $(grep -E '^\w+' .tool-versions | cut -d' ' -f1); do asdf plugin add $plugin; done
 asdf install
 ```
