@@ -44,7 +44,3 @@ def handler(_event: dict, _context: LambdaContext):
     sqs_client = client_factory.get_sqs_client(queue_url, queue_region, queue_role)
     executor = Executor(config, client_factory, sqs_client)
     _result = loop.run_until_complete(executor.scrape_and_emit())
-
-
-# if __name__ == "__main__":
-#     handler(None, None)

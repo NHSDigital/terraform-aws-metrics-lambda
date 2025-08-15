@@ -550,7 +550,7 @@ class DMSClient(RegionRoleClient, ResourceFilter):
     ) -> list[Resource]:
 
         if not resources:
-            return resources
+            return []
 
         repl_instance_ids = {}
 
