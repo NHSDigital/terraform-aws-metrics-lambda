@@ -1,4 +1,0 @@
----
-docker_push: "{{ lookup('env', 'DOCKER_PUSH', default='no') == 'yes' }}"
-push_cache: "{{ lookup('env', 'PUSH_CACHE', default='no') == 'yes' }}"
-push_builder: "{{ lookup('env', 'PUSH_BUILDER', default='no') == 'yes' }}"

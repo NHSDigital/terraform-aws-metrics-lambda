@@ -32,6 +32,9 @@ elif { [ "${scan_type}" == "commit-msg" ]; } ; then
 elif { [ "${scan_type}" == "prep-commit-msg" ]; } ; then
   echo "checking commit msg for secrets"
   git secrets --prepare_commit_msg_hook -- "${2}"
+elif { [ "${scan_type}" == "history" ]; } ; then
+  echo "checking commit history for secrets"
+  git secrets --scan-history
 else
   echo "scanning for secrets"
   # if staged files exist, this will scan staged files only, otherwise normal scan

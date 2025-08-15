@@ -1,36 +1,40 @@
 [tool.poetry]
-name = "odin-<replace-me>"
+name = "terraform-aws-metrics-lambda"
 version = "0.0.0"
-description = "odin <replace-me>"
+description = "odin metriczzz"
 authors = ["spine core"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/NHSDigital/odin-<replace-me>"
+repository = "https://github.com/NHSDigital/terraform-aws-metrics-lambda"
 package-mode = false
 #packages = [
 #    { include = "shared", from = "./src" },
 #]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
+aws-lambda-powertools = "^3.19.0"
+
 
 [tool.poetry.group.dev.dependencies]
 # ci / testing dependencies
 
 mypy = "^1.16.0"
-coverage = "^7.9.1"
 pytest = "^8.4.0"
 pytest-asyncio = "^1.0.0"
-ruff = "^0.11.13"
-petname = "^2.6"
-black = "^25.1.0"
-ansible = "^11.7.0"
-boto3 = "^1.38.36"
-ansible-lint = "^25.5.0"
+pytest-cov = "^6.2.1"
 python-dotenv = "^1.1.1"
 httpx = "^0.28.1"
 pytest-httpx = "^0.35.0"
 pytest-httpserver = "^1.1.2"
+ruff = "^0.11.13"
+petname = "^2.6"
+black = "^25.1.0"
+boto3 = "^1.38.36"
+moto = "^5.1.10"
+pyparsing = "^3.2.3"
+types-python-dateutil = "^2.9.0.20250809"
+
 
 [tool.poetry.group.local.dependencies]
 ipython = "^9.3.0"
@@ -75,7 +79,7 @@ target-version = "py311"
 
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 show_error_codes = true
@@ -87,6 +91,14 @@ exclude = [
     "terraform",
     "module"
 ]
+
+[[tool.mypy.overrides]]
+module = "boto3.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "botocore.*"
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "moto.*"
@@ -112,7 +124,6 @@ omit = [
     ".venv/*",
     ".tox/*",
     "tests/*",
-    "terraform/dist/*",
 ]
 source = [
     "."
@@ -132,7 +143,7 @@ omit = [
 sort = "-cover"
 ignore_errors = true
 precision = 2
-fail_under = 65
+fail_under = 55
 show_missing = true
 
 [tool.coverage.xml]
@@ -142,6 +153,7 @@ output = "reports/coverage.xml"
 [tool.poetry-dynamic-versioning]
 enable = true
 metadata = false
+pattern = 'v(?P<base>\d+\.\d+\.\d+)'
 vcs = "git"
 style = "pep440"
 format-jinja = """

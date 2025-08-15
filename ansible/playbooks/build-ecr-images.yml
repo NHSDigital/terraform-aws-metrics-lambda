@@ -1,8 +1,0 @@
-- name: build-ecr-images
-  hosts: 127.0.0.1
-  connection: local
-  gather_facts: false
-
-  roles:
-    - setup_facts
-    - build_ecr_images
