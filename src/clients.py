@@ -24,10 +24,8 @@ from model import (
 )
 from shared import get_start_end
 
-TReturn = TypeVar("TReturn")
 
-
-async def run_in_executor(func: Callable[..., TReturn], *args, **kwargs) -> TReturn:
+async def run_in_executor[T](func: Callable[..., T], *args, **kwargs) -> T:
     """
         async wrapper for sync code
     Args:
@@ -41,7 +39,7 @@ async def run_in_executor(func: Callable[..., TReturn], *args, **kwargs) -> TRet
     loop = asyncio.get_running_loop()
 
     to_execute = partial(func, *args, **kwargs)
-    result = cast(TReturn, await loop.run_in_executor(None, to_execute))
+    result = cast(T, await loop.run_in_executor(None, to_execute))
 
     return result
 

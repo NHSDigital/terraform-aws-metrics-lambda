@@ -1,0 +1,45 @@
+name: "sonar-properties"
+description: "automatically updates sonar-properties based on what we've detected in the project"
+
+runs:
+  using: "composite"
+  steps:
+    - name: maybe add sonar.testExecutionReportPaths
+      if: ${{ hashFiles('./reports/sonar/tests.xml') }}
+      shell: bash
+      run: |
+        if ! grep -qE '^sonar.testExecutionReportPaths=' sonar-project.properties; then
+          echo 'sonar.testExecutionReportPaths=reports/sonar/tests.xml' >> sonar-project.properties
+        fi
+
+    - name: maybe add sonar.python.coverage.reportPath
+      if: ${{ hashFiles('./reports/sonar/coverage.xml') }}
+      shell: bash
+      run: |
+        if ! grep -qE '^sonar.python.coverage.reportPaths=' sonar-project.properties; then
+          echo 'sonar.python.coverage.reportPaths=reports/sonar/coverage.xml' >> sonar-project.properties
+        fi
+
+    - name: maybe add sonar.python.version
+      if: ${{ hashFiles('.tool-versions') }}
+      shell: bash
+      run: |
+        if grep -Eq '^python ' .tool-versions && ! grep -qE '^sonar.python.version=' sonar-project.properties; then
+          echo "sonar.python.version=$(grep -oP '^python \K(\d+\.\d+)' .tool-versions)" >> sonar-project.properties
+        fi
+
+    - name: maybe add sonar.terraform.provider.aws.version
+      if: ${{ hashFiles('.tool-versions') }}
+      shell: bash
+      run: |
+        if grep -Eq '^terraform ' .tool-versions && ! grep -qE '^sonar.terraform.provider.aws.version=' sonar-project.properties; then
+          for stack in main ops dev source destination; do
+            if [ -f terraform/stacks/$stack/.terraform.lock.hcl ]; then
+              provider_version="$(sed -e '/^provider "registry.terraform.io\/hashicorp\/aws" {/,/^}/!d;/\s*version/!d;s/\s//g;s/version=//;s/"//g' terraform/stacks/$stack/.terraform.lock.hcl)"
+              if [[ -n "${provider_version}" ]]; then
+                echo "sonar.terraform.provider.aws.version=${provider_version}" >> sonar-project.properties
+                break
+              fi
+            fi
+          done
+        fi

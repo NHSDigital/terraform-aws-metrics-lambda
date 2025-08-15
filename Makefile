@@ -46,13 +46,8 @@ clean:
 	rm -rf ./reports
 	find . -type d -name '.mypy_cache' | xargs -r rm -r || true
 
-build:
-	mkdir -p build
-	#$(make) -C ansible build-ecr-images; cp docker/digests.yml ./build
-	$(make) -C terraform build
-
-dist: clean build
-	mv build dist
+.env:
+	touch .env
 
 pytest: .env
 	poetry run pytest
@@ -83,9 +78,6 @@ tf-trivy:
 mypy:
 	poetry run mypy .
 
-hadolint:
-	@docker run --rm -i -v ${PWD}/docker:/docker:ro hadolint/hadolint hadolint --config=docker/hadolint.yml docker/*/Dockerfile | sed 's/:\([0-9]\+\) /:\1:0 /'
-
 shellcheck:
 	@docker run --rm -i -v ${PWD}:/mnt:ro koalaman/shellcheck -f gcc -e SC1090,SC1091 `find . \( -path "*/.venv/*" -prune -o -path "*/build/*" -prune -o -path "*/dist/*" -prune  -o -path "*/.tox/*" -prune \) -o -type f -name '*.sh' -print`
 
@@ -104,62 +96,12 @@ black:
 black-check:
 	poetry run black . --check
 
-ansible-lint:
-	if find . -type d -name 'ansible' -not -path './.venv/*' -not -path './build/*' -not -path './dist/*' 2> /dev/null | grep -q 'ansible'; then \
-		poetry run ansible-lint --force-color -pv `find . -type d -name 'ansible' -not -path './.venv/*' -not -path './build/*' -not -path './dist/*' -printf '%P '`; \
-	fi
-
 lint: ruff mypy shellcheck
 
-lint-ci: black-check ruff-ci mypy tf-lint tf-trivy ansible-lint
+lint-ci: black-check ruff-ci mypy tf-lint tf-trivy shellcheck
 
 check-secrets:
 	scripts/check-secrets.sh
 
 check-secrets-all:
 	scripts/check-secrets.sh unstaged
-
-docker-login: guard-account
-	@aws --profile=odin_$(account) --region=eu-west-2 ecr get-login-password | docker login --username AWS --password-stdin "$$(aws --profile=odin_$(account) sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com"
-
-.env:
-	echo "LOCALSTACK_PORT=$$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')" > .env
-
-up: .env
-	docker compose up -d
-
-down:
-	docker compose down
-
-refresh-requirements:
-	@find . -type f -name '.lock-hash' | xargs -r rm; \
-	$(make) requirements
-
-requirements:
-	@lock_hash=$$(md5sum poetry.lock | cut -d' ' -f1); \
-	for f in $$(find . -type f -name 'poetry-cmd.sh' | sort); do \
-		reqs_dir="$$(dirname $$f)"; \
-		echo "$${reqs_dir}"; \
-		cmd_hash=$$(md5sum $$f | cut -d' ' -f1) ; \
-		cur_hash=$$(cat "$${reqs_dir}/.lock-hash" 2>/dev/null || echo -n ''); \
-		update="no"; \
-		if test ! -f "$${reqs_dir}/requirements.txt"; then \
-		  	echo "$${reqs_dir}/requirements.txt does not exist"; \
-		  	update="yes"; \
-		fi; \
-		if [[ "$${lock_hash}+$${cmd_hash}" != "$${cur_hash}" ]]; then \
-		  echo "$${lock_hash}+$${cmd_hash} != $${cur_hash}"; \
-		  update="yes"; \
-		fi; \
-		if [[ "$${update}" == "yes" ]]; then \
-		  echo "running: $${f}"; \
-		  /bin/bash $$f; \
-		  echo -n "$${lock_hash}+$${cmd_hash}" > "$${reqs_dir}/.lock-hash"; \
-		else \
-		  echo "$${lock_hash}+$${cmd_hash} == $${cur_hash}"; \
-		fi \
-	done
-
-
-compare-to: guard-dir
-	 diff --exclude='.gitallowed'  --exclude=terraform --exclude='.idea' --exclude='helm'  '--exclude=.venv' '--exclude=.mypy_cache' '--exclude=.ruff_cache' '--exclude=.git' '--exclude=poetry.lock' '--exclude=external-vars.json' --exclude='pyproject.toml' ./ $(dir)
