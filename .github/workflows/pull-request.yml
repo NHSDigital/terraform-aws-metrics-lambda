@@ -51,7 +51,7 @@ jobs:
 
       - name: coverage comment
         if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && hashFiles('./reports/coverage.xml') && hashFiles('./reports/pytest-coverage.txt') }}
-        uses: MishaKav/pytest-coverage-comment@main
+        uses: MishaKav/pytest-coverage-comment@9638e4b1448019aba40c4aaaa1ade87a9f211aa1
         with:
           pytest-coverage-path: ./reports/pytest-coverage.txt
           pytest-xml-coverage-path: ./reports/coverage.xml
@@ -66,12 +66,12 @@ jobs:
         uses: ./.github/actions/sonar-properties
 
       - name: sonarqube scan
-        uses: SonarSource/sonarqube-scan-action@v5.3.0
+        uses: SonarSource/sonarqube-scan-action@8c71dc039c2dd71d3821e89a2b58ecc7fee6ced9
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: publish test report
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3
         if: ${{ !cancelled() }}
         with:
           report_paths: 'reports/junit/*.xml'
