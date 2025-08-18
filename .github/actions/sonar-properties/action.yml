@@ -43,3 +43,8 @@ runs:
             fi
           done
         fi
+
+    - name: cat sonar-project.properties
+      shell: bash
+      run: |
+        cat sonar-project.properties

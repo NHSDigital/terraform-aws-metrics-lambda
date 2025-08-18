@@ -59,7 +59,7 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: install poetry
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a
         with:
           version: ${{ steps.poetry-version.outputs.version }}
           plugins: poetry-dynamic-versioning
