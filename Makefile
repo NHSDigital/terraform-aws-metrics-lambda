@@ -105,3 +105,6 @@ check-secrets:
 
 check-secrets-all:
 	scripts/check-secrets.sh unstaged
+
+check-secrets-history:
+	scripts/check-secrets.sh history
