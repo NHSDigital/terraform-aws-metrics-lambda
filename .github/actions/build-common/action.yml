@@ -51,7 +51,7 @@ runs:
 
     - name: Install tools from asdf config
       if: ${{ hashFiles('**/.tool-versions') }}
-      uses: ai/asdf-cache-action@v1
+      uses: ai/asdf-cache-action@d74eacf1ff3bb69ce232d6147c88704a9668db3a
 
     - name: cache virtualenv
       uses: actions/cache@v4
