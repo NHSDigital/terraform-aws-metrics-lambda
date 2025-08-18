@@ -784,12 +784,6 @@ class ClientFactory:
         self._clients: dict[tuple[type, str, str | None], RegionRoleClient] = {
             (STSClient, sts_region, None): self._sts
         }
-        # self._sts_clients: dict[tuple[str, str | None], STSClient] = {
-        #     (sts_region, None): self._sts
-        # }
-        # self._support_clients: dict[str | None, SupportAppClient] = {}
-        # self._tagging_clients: dict[tuple[str, str | None], TaggingClient] = {}
-        # self._cloudwatch_clients: dict[tuple[str, str | None], CloudWatchClient] = {}
         self._session_lock = asyncio.Lock()
 
     def region_config(self, region: str) -> Config:
