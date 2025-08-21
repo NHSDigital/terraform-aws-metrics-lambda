@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "this" {
       "storagegateway:ListGateways",
       "storagegateway:ListTagsForResource",
       "iam:ListAccountAliases",
-      "iam:GetAccountAlias",
+      "supportapp:GetAccountAlias",
       "sts:GetCallerIdentity"
     ]
     resources = [
