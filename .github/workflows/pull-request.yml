@@ -66,7 +66,7 @@ jobs:
         uses: ./.github/actions/sonar-properties
 
       - name: sonarqube scan
-        uses: SonarSource/sonarqube-scan-action@8c71dc039c2dd71d3821e89a2b58ecc7fee6ced9
+        uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
