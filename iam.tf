@@ -83,6 +83,11 @@ resource "aws_iam_role_policy" "this" {
   policy = data.aws_iam_policy_document.this.json
 }
 
+resource "aws_iam_role_policy_attachment" "logging" {
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role_policy_attachment" "insights" {
   count      = var.enable_lambda_insights ? 1 : 0
   role       = aws_iam_role.this.name
