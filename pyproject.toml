@@ -13,12 +13,11 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
-aws-lambda-powertools = "^3.19.0"
+
 
 
 [tool.poetry.group.dev.dependencies]
 # ci / testing dependencies
-
 mypy = "^1.16.0"
 pytest = "^8.4.0"
 pytest-asyncio = "^1.0.0"
@@ -34,6 +33,7 @@ boto3 = "^1.40.17"
 moto = "^5.1.10"
 pyparsing = "^3.2.3"
 types-python-dateutil = "^2.9.0.20250822"
+aws-lambda-powertools = "^3.19.0"
 
 
 [tool.poetry.group.local.dependencies]
@@ -77,7 +77,6 @@ target-version = "py312"
 
 [tool.ruff.lint.per-file-ignores]
 
-
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
@@ -87,9 +86,6 @@ check_untyped_defs = true
 exclude = [
     "build",
     "dist",
-    "scripts",
-    "terraform",
-    "module"
 ]
 
 [[tool.mypy.overrides]]

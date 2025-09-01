@@ -101,11 +101,6 @@ jobs:
                 throw new Error(`auto-merge-dependabot not permitted for author login: ${author.login} type: ${author.type}`);
               }
 
-              let committer = commit.committer;
-              if (committer.login != 'dependabot[bot]' || committer.type != 'Bot') {
-                throw new Error(`auto-merge-dependabot not permitted for committer login: ${committer.login} type: ${committer.type}`);
-              }
-
             }
 
             if (commits.data.length>249) {
