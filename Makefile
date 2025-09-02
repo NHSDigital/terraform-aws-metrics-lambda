@@ -1,4 +1,4 @@
-SHELL:=/bin/bash -o pipefail -O globstar
+SHELL:=$(shell which bash) -o pipefail -O globstar
 .SHELLFLAGS = -ec
 .PHONY: build dist
 .DEFAULT_GOAL := list
