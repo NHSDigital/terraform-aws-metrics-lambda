@@ -6,7 +6,7 @@ gho_[0-9a-zA-Z]{36}
 (ghu|ghs)_[0-9a-zA-Z]{36}
 ghr_[0-9a-zA-Z]{76}
 xox[baprs]-([0-9a-zA-Z]{10,48})?
------BEGIN\ ((EC|PGP|DSA|RSA|OPENSSH)\ )?PRIVATE KEY( BLOCK)?-----
+-----BEGIN\ ((EC|PGP|DSA|RSA|OPENSSH)\ )?PRIVATE KEY.*-----
 AIza[0-9A-Za-z\\-_]{35}
 '"type": "service_account"'
 [a-z]{2}-[a-z-]*-[1,2,3]\.rds\.amazonaws\.com
