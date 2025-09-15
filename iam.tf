@@ -1,4 +1,6 @@
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role" "this" {
   name = "lambda-${var.name}"
   assume_role_policy = jsonencode(
@@ -10,7 +12,12 @@ resource "aws_iam_role" "this" {
           Principal = {
             Service = "lambda.amazonaws.com"
           },
-          Effect = "Allow"
+          Effect = "Allow",
+          Condition = {
+            StringEquals = {
+              "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            }
+          }
         }
       ]
     }
