@@ -26,18 +26,18 @@ python-dotenv = "^1.1.1"
 httpx = "^0.28.1"
 pytest-httpx = "^0.35.0"
 pytest-httpserver = "^1.1.2"
-ruff = "^0.13.2"
+ruff = "^0.14.0"
 petname = "^2.6"
 black = "^25.9.0"
-boto3 = "^1.40.40"
+boto3 = "^1.40.50"
 moto = "^5.1.10"
 pyparsing = "^3.2.4"
-types-python-dateutil = "^2.9.0.20250822"
+types-python-dateutil = "^2.9.0.20251008"
 aws-lambda-powertools = "^3.21.0"
 
 
 [tool.poetry.group.local.dependencies]
-ipython = "^9.3.0"
+ipython = "^9.6.0"
 
 [tool.ruff]
 lint.select = [
