@@ -30,12 +30,15 @@ runs:
     - name: merge into base_branch
       if: ${{ github.event_name == 'pull_request' }}
       shell: bash
+      env:
+        PR_NUMBER: ${{ github.event.number }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       run: |
-        echo base branch "${{ github.base_ref }}"
-        echo pr branch "${{ github.head_ref }}"
-        git checkout "${{ github.base_ref }}"
-        git checkout -b "merging-${{ github.event.number }}"
-        git merge --ff-only "${{ github.event.pull_request.head.sha }}"
+        echo base branch "${GITHUB_BASE_REF}"
+        echo pr branch "${GITHUB_HEAD_REF}"
+        git checkout "${GITHUB_BASE_REF}"
+        git checkout -b "merging-${PR_NUMBER}"
+        git merge --ff-only "${PR_HEAD_SHA}"
 
     - name: git reset
       shell: bash
