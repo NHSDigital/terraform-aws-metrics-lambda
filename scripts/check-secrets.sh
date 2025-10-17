@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-scan_type=${1-pre-commit}
+scan_type="${1-pre-commit}"
 
 if ! git secrets -- 1> /dev/null; then
   echo "git secrets is not installed"
@@ -19,20 +19,20 @@ if [[ -e ./.gitdisallowed ]]; then
   git secrets --add --allowed '^\.gitdisallowed:[0-9]+:.*' || true
 fi
 
-if { [ "${scan_type}" == "unstaged" ]; } ; then
+if { [[ "${scan_type}" == "unstaged" ]]; } ; then
   echo "scanning staged and unstaged files for secrets"
   git secrets --scan --recursive
   git secrets --scan --untracked
-elif { [ "${scan_type}" == "staged" ]; } ; then
+elif { [[ "${scan_type}" == "staged" ]]; } ; then
   echo "scanning staged files for secrets"
   git secrets --scan --recursive
-elif { [ "${scan_type}" == "commit-msg" ]; } ; then
+elif { [[ "${scan_type}" == "commit-msg" ]]; } ; then
   echo "checking commit msg for secrets"
   git secrets --commit_msg_hook -- "${2}"
-elif { [ "${scan_type}" == "prep-commit-msg" ]; } ; then
+elif { [[ "${scan_type}" == "prep-commit-msg" ]]; } ; then
   echo "checking commit msg for secrets"
   git secrets --prepare_commit_msg_hook -- "${2}"
-elif { [ "${scan_type}" == "history" ]; } ; then
+elif { [[ "${scan_type}" == "history" ]]; } ; then
   echo "checking commit history for secrets"
   git secrets --scan-history
 else
