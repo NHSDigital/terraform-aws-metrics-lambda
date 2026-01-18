@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 import pytest
 from botocore.config import Config
@@ -134,7 +134,7 @@ async def test_alb_metric_discovery(test_bucket, temp_alb):
                     dimensions=[
                         {"Name": "LoadBalancer", "Value": alb_id},
                     ],
-                    timestamp=datetime.now(tz=UTC).replace(second=0, microsecond=0),
+                    timestamp=datetime.now().replace(second=0, microsecond=0),
                     unit="Count",
                 )
             ]
