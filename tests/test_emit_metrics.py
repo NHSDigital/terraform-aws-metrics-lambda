@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import uuid4
 
 import boto3
@@ -116,7 +116,7 @@ async def test_alb_discovery_scrape_and_emit(temp_queue, temp_alb):
                     dimensions=[
                         {"Name": "LoadBalancer", "Value": alb_id},
                     ],
-                    timestamp=datetime.now(tz=UTC).replace(second=0, microsecond=0)
+                    timestamp=datetime.now().replace(second=0, microsecond=0)
                     - relativedelta(minutes=1),
                     unit="Count",
                 )
