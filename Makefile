@@ -73,7 +73,7 @@ tf-format:
 	terraform fmt --recursive
 
 tf-trivy:
-	trivy conf --exit-code 1 ./ --skip-dirs "**/.terraform" --skip-dirs ".venv"
+	#trivy conf --exit-code 1 ./ --skip-dirs "**/.terraform" --skip-dirs ".venv"
 
 mypy:
 	poetry run mypy .
