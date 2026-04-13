@@ -18,21 +18,21 @@ python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 # ci / testing dependencies
-mypy = ">=1.19.0"
-pytest = ">=8.4.2"
+mypy = ">=1.20.1"
+pytest = ">=9.0.3"
 pytest-asyncio = ">=1.3.0"
 pytest-cov = ">=7.0.0"
 python-dotenv = ">=1.2.1"
 httpx = ">=0.28.1"
-pytest-httpx = ">=0.35.0"
+pytest-httpx = ">=0.36.2"
 pytest-httpserver = ">=1.1.2"
-ruff = ">=0.14.8"
+ruff = ">=0.15.10"
 petname = ">=2.6"
 black = ">=25.12.0"
-boto3 = ">=1.42.4"
+boto3 = ">=1.42.88"
 moto = ">=5.1.10"
 pyparsing = ">=3.3.1"
-types-python-dateutil = ">=2.9.0.20251115"
+types-python-dateutil = ">=2.9.0.20260408"
 aws-lambda-powertools = ">=3.24.0"
 
 
