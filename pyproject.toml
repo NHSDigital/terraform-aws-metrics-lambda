@@ -33,7 +33,7 @@ boto3 = ">=1.42.88"
 moto = ">=5.1.10"
 pyparsing = ">=3.3.1"
 types-python-dateutil = ">=2.9.0.20260408"
-aws-lambda-powertools = ">=3.24.0"
+aws-lambda-powertools = ">=3.27.0"
 
 
 [tool.poetry.group.local.dependencies]
