@@ -73,7 +73,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: publish test report
-        uses: mikepenz/action-junit-report@bccf2e31636835cf0874589931c4116687171386
+        uses: mikepenz/action-junit-report@3a81627bfac62268172037048872e8ebd4207e6d
         if: ${{ !cancelled() }}
         with:
           report_paths: 'reports/junit/*.xml'
