@@ -53,7 +53,7 @@ jobs:
 
       - name: coverage comment
         if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && hashFiles('./reports/coverage.xml') && hashFiles('./reports/pytest-coverage.txt') }}
-        uses: MishaKav/pytest-coverage-comment@dd5b80bde6d16941f336518e92929e89069d8451
+        uses: MishaKav/pytest-coverage-comment@e48ae95fa406cefacc7fbdd79949122795569961
         with:
           pytest-coverage-path: ./reports/pytest-coverage.txt
           pytest-xml-coverage-path: ./reports/coverage.xml
