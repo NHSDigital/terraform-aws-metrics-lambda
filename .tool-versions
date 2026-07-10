@@ -1,6 +1,6 @@
 pre-commit 4.2.0
 python 3.12.10
-poetry 1.8.5
-terraform 1.12.2
-trivy 0.69.2
-tflint 0.61.0
+poetry 2.2.1
+terraform 1.15.8
+trivy 0.71.2
+tflint 0.63.1

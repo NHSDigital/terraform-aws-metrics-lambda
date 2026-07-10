@@ -1,0 +1,17 @@
+name: "mise-cache"
+description: "mise cache action, wrapper for mise-action"
+inputs:
+  mise-version:
+    description: "mise version to install"
+    default: ""
+    required: false
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install tools using mise and cache them
+      if: ${{ hashFiles('**/.tool-versions') }}
+      uses: jdx/mise-action@d53861813ec96de6a7b18548a2c75ba8f6055fbf
+      with:
+        version: ${{ inputs.mise-version }}
+        cache_key: "odin-mise-{{platform}}-{{version}}-{{file_hash}}"  # Override the entire cache key
