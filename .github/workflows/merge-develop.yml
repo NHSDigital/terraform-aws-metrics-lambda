@@ -48,28 +48,45 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: check for specific poetry version
-        id: poetry-version
+      - name: get uv version
+        id: uv-version
         shell: bash
         run: |
-          version="latest"
-          if [ -f .tool-versions ] && grep -Eq "^poetry .*" .tool-versions; then
-            version="$(grep -E "^poetry .*" .tool-versions | cut -d ' ' -f2)"
+          if [ -f .tool-versions ] && grep -Eq "^uv .*" .tool-versions; then
+            version="$(grep -E '^uv .*' .tool-versions | sed -E 's#.*\s##')"
+          else
+            version="0.11.28"
           fi
+          echo "version=${version}"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: install poetry
-        uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263
+      - name: install mise / uv
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d  # 4.2.0
         with:
-          version: ${{ steps.poetry-version.outputs.version }}
-          plugins: poetry-dynamic-versioning
+          install: true
+          cache: true
+          tool_versions: |
+            uv ${{ steps.uv-version.outputs.version }}
+          reshim: true
+          github_token: ${{ inputs.github-token }}
+
+      - name: uv get release version
+        shell: bash
+        id: get-version
+        run: |
+          VERSION="v$(uvx --no-build hatch@1.17.1 version | sed -E 's#rc.*$##')"
+          echo "VERSION=${VERSION}"
+          if [ -z "${VERSION}" ]; then
+          exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: increment patch version and replace major version
         shell: bash
         id: get-version
         run: |
           # Create semantic version tag: vN.N.N
-          SEMANTIC_VERSION="v$(poetry version patch -s)"
+          SEMANTIC_VERSION="${{ steps.get-version.outputs.version }}"
           git tag "${SEMANTIC_VERSION}"
           git push origin "${SEMANTIC_VERSION}"
 
