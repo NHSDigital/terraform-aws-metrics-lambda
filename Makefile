@@ -108,3 +108,10 @@ check-secrets-all:
 
 check-secrets-history:
 	scripts/check-secrets.sh history
+
+clean:
+	rm -rf ./dist
+
+dist: clean
+	rsync -av ./ --exclude .git --exclude .venv --exclude .idea --exclude .github --exclude .pytest_cache --exclude .ruff_cache --exclude __pycache__ --exclude .mypy_cache --exclude dist --exclude reports --exclude tests --exclude scripts --exclude Makefile --exclude sonar-project.properties --exclude '.*' --exclude '*.md' --exclude '*.yaml' --exclude '*.toml' ./ ./dist
+	pushd ./dist && zip -r ../dist.zip . && popd

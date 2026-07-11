@@ -52,9 +52,9 @@ runs:
         sed -i -E 's#^python .*##g' .tool-versions
         sed -i -E 's#^pre-commit .*##g' .tool-versions
 
-    - name: Install tools from asdf config
+    - name: Install tools from mise config
       if: ${{ hashFiles('**/.tool-versions') }}
-      uses: ai/asdf-cache-action@d74eacf1ff3bb69ce232d6147c88704a9668db3a
+      uses: ./.github/actions/mise-cache
 
     - name: cache virtualenv
       uses: actions/cache@v4

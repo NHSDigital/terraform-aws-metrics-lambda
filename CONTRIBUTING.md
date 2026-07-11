@@ -4,16 +4,15 @@
 tools used:
 - make
 - git
-- [asdf version manager](https://asdf-vm.com/guide/getting-started.html)
+- mise
 
 ## first run ...
 
 ### install project tools
-use asdf to ensure required tools are installed ... configured tools are in  [.tool-versions](.tool-versions)
+use mise to ensure required tools are installed ... configured tools are in  [.tool-versions](.tool-versions)
 ```bash
 cd ~/work/terraform-aws-metrics-lambda
-for plugin in $(grep -E '^\w+' .tool-versions | cut -d' ' -f1); do asdf plugin add $plugin; done
-asdf install
+mise install
 ```
 
 ### setup git-secrets
