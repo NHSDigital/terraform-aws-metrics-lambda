@@ -2,7 +2,7 @@ SHELL:=$(shell which bash) -o pipefail -O globstar
 .SHELLFLAGS = -ec
 .PHONY: build dist
 .DEFAULT_GOAL := list
-# this is just to try and supress errors caused by poetry run
+# this is just to try and supress errors caused by uv run
 export PYTHONWARNINGS=ignore:::setuptools.command.install
 make := make --no-print-directory
 
@@ -31,11 +31,14 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
-install:
-	poetry install --sync
+.venv/:
+	uv venv --python="$$(python --version | cut -d ' ' -f2)"
+
+install: .venv/
+	uv sync
 
 install-ci:
-	poetry install --without local --sync
+	uv sync --no-group local
 
 local-terraform:
 	$(make) -C terraform/stacks/local
@@ -50,7 +53,7 @@ clean:
 	touch .env
 
 pytest: .env
-	poetry run pytest
+	uv run pytest
 
 test: pytest
 
@@ -58,10 +61,10 @@ reports/:
 	mkdir -p reports
 
 coverage: .env
-	poetry run pytest --cov --color=yes -v --cov-report=term-missing:skip-covered
+	uv run pytest --cov --color=yes -v --cov-report=term-missing:skip-covered
 
 coverage-ci: clean .env reports/
-	poetry run pytest --cov --color=yes -v --junit-xml=./reports/junit/results.xml --cov-report=term-missing:skip-covered --cov-report xml | tee reports/pytest-coverage.txt
+	uv run pytest --cov --color=yes -v --junit-xml=./reports/junit/results.xml --cov-report=term-missing:skip-covered --cov-report xml | tee reports/pytest-coverage.txt
 
 tf-lint:
 	tflint --config "$(pwd)/.tflint.hcl"
@@ -76,25 +79,25 @@ tf-trivy:
 	#trivy conf --exit-code 1 ./ --skip-dirs "**/.terraform" --skip-dirs ".venv"
 
 mypy:
-	poetry run mypy .
+	uv run mypy .
 
 shellcheck:
 	@docker run --rm -i -v ${PWD}:/mnt:ro koalaman/shellcheck -f gcc -e SC1090,SC1091 `find . \( -path "*/.venv/*" -prune -o -path "*/build/*" -prune -o -path "*/dist/*" -prune  -o -path "*/.tox/*" -prune \) -o -type f -name '*.sh' -print`
 
 ruff: black
-	poetry run ruff check . --fix --show-fixes
+	uv run ruff check . --fix --show-fixes
 
 ruff-check:
-	poetry run ruff check .
+	uv run ruff check .
 
 ruff-ci:
-	poetry run ruff check . --output-format=github
+	uv run ruff check . --output-format=github
 
 black:
-	poetry run black .
+	uv run black .
 
 black-check:
-	poetry run black . --check
+	uv run black . --check
 
 lint: ruff mypy shellcheck
 
