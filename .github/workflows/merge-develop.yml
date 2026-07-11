@@ -83,7 +83,6 @@ jobs:
 
       - name: increment patch version and replace major version
         shell: bash
-        id: get-version
         run: |
           # Create semantic version tag: vN.N.N
           SEMANTIC_VERSION="${{ steps.get-version.outputs.version }}"
