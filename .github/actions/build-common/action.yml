@@ -63,7 +63,7 @@ runs:
           .venv
           **/.lock-hash
           **/requirements.txt
-        key: ${{ runner.os }}-py-${{ inputs.python-version }}-poetry-${{ hashFiles('./poetry.lock') }}
+        key: ${{ runner.os }}-py-${{ inputs.python-version }}-uv-${{ hashFiles('./uv.lock') }}
 
     - name: install
       shell: bash
