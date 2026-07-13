@@ -35,10 +35,10 @@ endif
 	uv venv --python="$$(python --version | cut -d ' ' -f2)"
 
 install: .venv/
-	uv sync
+	uv sync --frozen
 
 install-ci:
-	uv sync --no-group local
+	uv sync --frozen --no-group local
 
 local-terraform:
 	$(make) -C terraform/stacks/local
