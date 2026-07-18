@@ -53,7 +53,7 @@ clean:
 	touch .env
 
 pytest: .env
-	uv run pytest
+	uv run --frozen pytest
 
 test: pytest
 
@@ -61,10 +61,10 @@ reports/:
 	mkdir -p reports
 
 coverage: .env
-	uv run pytest --cov --color=yes -v --cov-report=term-missing:skip-covered
+	uv run --frozen pytest --cov --color=yes -v --cov-report=term-missing:skip-covered
 
 coverage-ci: clean .env reports/
-	uv run pytest --cov --color=yes -v --junit-xml=./reports/junit/results.xml --cov-report=term-missing:skip-covered --cov-report xml | tee reports/pytest-coverage.txt
+	uv run --frozen pytest --cov --color=yes -v --junit-xml=./reports/junit/results.xml --cov-report=term-missing:skip-covered --cov-report xml | tee reports/pytest-coverage.txt
 
 tf-lint:
 	tflint --config "$(pwd)/.tflint.hcl"
@@ -79,25 +79,25 @@ tf-trivy:
 	#trivy conf --exit-code 1 ./ --skip-dirs "**/.terraform" --skip-dirs ".venv"
 
 mypy:
-	uv run mypy .
+	uv run --frozen mypy .
 
 shellcheck:
 	@docker run --rm -i -v ${PWD}:/mnt:ro koalaman/shellcheck -f gcc -e SC1090,SC1091 `find . \( -path "*/.venv/*" -prune -o -path "*/build/*" -prune -o -path "*/dist/*" -prune  -o -path "*/.tox/*" -prune \) -o -type f -name '*.sh' -print`
 
 ruff: black
-	uv run ruff check . --fix --show-fixes
+	uv run --frozen ruff check . --fix --show-fixes
 
 ruff-check:
-	uv run ruff check .
+	uv run --frozen ruff check .
 
 ruff-ci:
-	uv run ruff check . --output-format=github
+	uv run --frozen ruff check . --output-format=github
 
 black:
-	uv run black .
+	uv run --frozen black .
 
 black-check:
-	uv run black . --check
+	uv run --frozen black . --check
 
 lint: ruff mypy shellcheck
 
