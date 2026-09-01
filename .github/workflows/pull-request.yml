@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions/build-common
 
       - name: tflint --init
-        if: ${{ hashFiles('.tflint.hcl') }}
+        if: ${{ hashFiles('.tflint.hcl', '!.venv/**') }}
         run: |
           tflint --init
         shell: bash
@@ -56,7 +56,7 @@ jobs:
           make coverage-ci
 
       - name: coverage comment
-        if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && hashFiles('./reports/coverage.xml') && hashFiles('./reports/pytest-coverage.txt') }}
+        if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && hashFiles('./reports/coverage.xml', '!.venv/**') && hashFiles('./reports/pytest-coverage.txt', '!.venv/**') }}
         uses: MishaKav/pytest-coverage-comment@fd9adbdca9fdfbe2b9bfa44a7340e6a83346ce6c
         with:
           pytest-coverage-path: ./reports/pytest-coverage.txt
@@ -64,11 +64,11 @@ jobs:
           junitxml-path: ./reports/junit/results.xml
 
       - name: convert sonar reports
-        if: ${{ hashFiles('./reports/junit/*.xml') || hashFiles('./reports/coverage.xml') }}
+        if: ${{ hashFiles('./reports/junit/*.xml', '!.venv/**') || hashFiles('./reports/coverage.xml', '!.venv/**') }}
         uses: ./.github/actions/sonar-reports
 
       - name: prepare sonar properties
-        if: ${{ hashFiles('./sonar-project.properties') }}
+        if: ${{ hashFiles('./sonar-project.properties', '!.venv/**') }}
         uses: ./.github/actions/sonar-properties
 
       - name: sonarqube scan

@@ -9,7 +9,7 @@ tools used:
 ## first run ...
 
 ### install project tools
-use mise to ensure required tools are installed ... configured tools are in  [.tool-versions](.tool-versions)
+use mise to ensure required tools are installed ... configured tools are in  [mise.toml](mise.toml)
 ```bash
 cd ~/work/terraform-aws-metrics-lambda
 mise install
