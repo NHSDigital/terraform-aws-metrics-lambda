@@ -46,14 +46,14 @@ runs:
 
 
     - name: replace remove some unneeded tools
-      if: ${{ hashFiles('**/.tool-versions') }}
+      if: ${{ hashFiles('mise.toml', '!.venv/**') }}
       shell: bash
       run: |
-        sed -i -E 's#^python .*##g' .tool-versions
-        sed -i -E 's#^pre-commit .*##g' .tool-versions
+        sed -E 's/^python /#python /' -i mise.toml
+        sed -E 's/^pre-commit /#pre-commit /' -i mise.toml
 
     - name: Install tools from mise config
-      if: ${{ hashFiles('**/.tool-versions') }}
+      if: ${{ hashFiles('mise.toml', '!.venv/**') }}
       uses: ./.github/actions/mise-cache
 
     - name: cache virtualenv
@@ -63,7 +63,7 @@ runs:
           .venv
           **/.lock-hash
           **/requirements.txt
-        key: ${{ runner.os }}-py-${{ inputs.python-version }}-uv-${{ hashFiles('./uv.lock') }}
+        key: ${{ runner.os }}-py-${{ inputs.python-version }}-uv-${{ hashFiles('./uv.lock', '!.venv/**') }}
 
     - name: install
       shell: bash

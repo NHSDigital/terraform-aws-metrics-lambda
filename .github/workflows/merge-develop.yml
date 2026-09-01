@@ -25,11 +25,11 @@ jobs:
           make coverage-ci
 
       - name: convert sonar reports
-        if: ${{ hashFiles('./reports/junit/*.xml') || hashFiles('./reports/coverage.xml') }}
+        if: ${{ hashFiles('./reports/junit/*.xml', '!.venv/**') || hashFiles('./reports/coverage.xml', '!.venv/**') }}
         uses: ./.github/actions/sonar-reports
 
       - name: prepare sonar properties
-        if: ${{ hashFiles('./sonar-project.properties') }}
+        if: ${{ hashFiles('./sonar-project.properties', '!.venv/**') }}
         uses: ./.github/actions/sonar-properties
 
       - name: sonarqube scan
@@ -52,8 +52,8 @@ jobs:
         id: uv-version
         shell: bash
         run: |
-          if [ -f .tool-versions ] && grep -Eq "^uv .*" .tool-versions; then
-            version="$(grep -E '^uv .*' .tool-versions | sed -E 's#.*\s##')"
+          if grep -Eq "^uv .*" mise.toml 2> /dev/null; then
+            version="$(grep -oP '^uv = "\K\d+\.\d+\.\d+' mise.toml)"
           else
             version="0.11.28"
           fi
